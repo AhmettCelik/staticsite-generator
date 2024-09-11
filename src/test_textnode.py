@@ -65,61 +65,86 @@ class TestTextNodeToHTMLNode(unittest.TestCase):
         self.assertEqual(html_node.tag, "b")
         self.assertEqual(html_node.value, "This is bold")
 
-class TestSplitNodesDelimiter(unittest.TestCase):
-    def test_code(self):
+class TestInlineMarkdown(unittest.TestCase):
+    def test_delim_bold(self):
+        node = TextNode("This is text with a **bolded** word", text_type_text)
+        new_nodes = split_nodes_delimiter([node], "**", text_type_bold)
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", text_type_text),
+                TextNode("bolded", text_type_bold),
+                TextNode(" word", text_type_text),
+            ],
+            new_nodes,
+        )
+
+    def test_delim_bold_double(self):
+        node = TextNode(
+            "This is text with a **bolded** word and **another**", text_type_text
+        )
+        new_nodes = split_nodes_delimiter([node], "**", text_type_bold)
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", text_type_text),
+                TextNode("bolded", text_type_bold),
+                TextNode(" word and ", text_type_text),
+                TextNode("another", text_type_bold),
+            ],
+            new_nodes,
+        )
+
+    def test_delim_bold_multiword(self):
+        node = TextNode(
+            "This is text with a **bolded word** and **another**", text_type_text
+        )
+        new_nodes = split_nodes_delimiter([node], "**", text_type_bold)
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", text_type_text),
+                TextNode("bolded word", text_type_bold),
+                TextNode(" and ", text_type_text),
+                TextNode("another", text_type_bold),
+            ],
+            new_nodes,
+        )
+
+    def test_delim_italic(self):
+        node = TextNode("This is text with an *italic* word", text_type_text)
+        new_nodes = split_nodes_delimiter([node], "*", text_type_italic)
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", text_type_text),
+                TextNode("italic", text_type_italic),
+                TextNode(" word", text_type_text),
+            ],
+            new_nodes,
+        )
+
+    def test_delim_bold_and_italic(self):
+        node = TextNode("**bold** and *italic*", text_type_text)
+        new_nodes = split_nodes_delimiter([node], "**", text_type_bold)
+        new_nodes = split_nodes_delimiter(new_nodes, "*", text_type_italic)
+        self.assertListEqual(
+            [
+                TextNode("bold", text_type_bold),
+                TextNode(" and ", text_type_text),
+                TextNode("italic", text_type_italic),
+            ],
+            new_nodes,
+        )
+
+    def test_delim_code(self):
         node = TextNode("This is text with a `code block` word", text_type_text)
         new_nodes = split_nodes_delimiter([node], "`", text_type_code)
-        self.assertEqual(new_nodes, 
-			[
-				TextNode("This is text with a ", text_type_text),
-				TextNode("code block", text_type_code),
-				TextNode(" word", text_type_text),
-			]
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", text_type_text),
+                TextNode("code block", text_type_code),
+                TextNode(" word", text_type_text),
+            ],
+            new_nodes,
         )
 
-    def test_multiple_nodes(self):
-        nodes = [
-            TextNode("This is text with a `code block` word, this is another `code block` word", text_type_text),
-            TextNode("`This is text with a code block word`", text_type_text),
-            TextNode("This is text with a `code block` word too", text_type_text),
-        ]
-        new_nodes = split_nodes_delimiter(nodes, "`", text_type_code)
-        self.assertEqual(new_nodes, 
-			[
-				TextNode("This is text with a ", text_type_text),
-				TextNode("code block", text_type_code),
-				TextNode(" word, this is another ", text_type_text),
-				TextNode("code block", text_type_code),
-				TextNode(" word", text_type_text),
-				TextNode("This is text with a code block word", text_type_code),
-				TextNode("This is text with a ", text_type_text),
-				TextNode("code block", text_type_code),
-				TextNode(" word too", text_type_text),
-			]
-        )
-
-    
-    def test_bold(self):
-        node = TextNode("This is text with a **bold block** word", text_type_text)
-        new_nodes = split_nodes_delimiter([node], "**", text_type_bold)
-        self.assertEqual(new_nodes, 
-			[
-				TextNode("This is text with a ", text_type_text),
-				TextNode("bold block", text_type_bold),
-				TextNode(" word", text_type_text),
-			]
-        )
-
-    def test_italic(self):
-        node = TextNode("This is text with a *italic block* word", text_type_text)
-        new_nodes = split_nodes_delimiter([node], "*", text_type_italic)
-        self.assertEqual(new_nodes, 
-			[
-				TextNode("This is text with a ", text_type_text),
-				TextNode("italic block", text_type_italic),
-				TextNode(" word", text_type_text),
-			]
-        )
 
 if __name__ == "__main__":
     unittest.main()
