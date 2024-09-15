@@ -1,17 +1,16 @@
 import shutil
 import os
+from pathlib import Path
 from markdown_blocks import markdown_to_html_node
 
+dir_path_static = "./static"
+dir_path_public = "./public"
+dir_path_content = "./content"
+template_path = "./template.html"
+
 def main():
-    source_directory = "./static"
-    destination_directory = "./public"
-    copy_directory_recursive(source_directory, destination_directory)
-    
-    source_path = "./content"
-    destination_path = "./public"
-    template_path = "./template.html"
-    
-    generate_page_recursive(source_path, template_path, destination_path)
+    copy_directory_recursive(dir_path_static, dir_path_public)
+    generate_pages_recursive(dir_path_content, template_path, dir_path_public)
 
 def copy_directory_recursive(src, dest):
     if os.path.exists(dest):
@@ -55,39 +54,15 @@ def generate_page(from_path, template_path, dest_path):
     
     with open(dest_path, 'w') as dest_file:
         dest_file.write(new_template_path_as_string)
-        
-import os
 
-import os
-
-def generate_page_recursive(dir_path_content, template_path, dest_dir_path):
-    every_entry = os.listdir(dir_path_content)
-    
-    for entry in every_entry:
-        entry_path = os.path.join(dir_path_content, entry)
-
-        if os.path.isdir(entry_path):
-            new_dest_dir_path = os.path.join(dest_dir_path, entry)
-            os.makedirs(new_dest_dir_path, exist_ok=True)
-            generate_page_recursive(entry_path, template_path, new_dest_dir_path)
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    for filename in os.listdir(dir_path_content):
+        from_path = os.path.join(dir_path_content, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        if os.path.isfile(from_path):
+            dest_path = Path(dest_path).with_suffix(".html")
+            generate_page(from_path, template_path, dest_path)
         else:
-            _, extension = os.path.splitext(entry)
-
-            if extension.lower() in ['.md', '.markdown']:
-                with open(entry_path, 'r', encoding='utf-8') as entry_file:
-                    markdown_content = entry_file.read()
-                
-                with open(template_path, 'r', encoding='utf-8') as template_file:
-                    template_HTML = template_file.read()
-                
-                HTML = markdown_to_html_node(markdown_content).to_html()
-                template_HTML = template_HTML.replace("{{ Content }}", HTML)
+            generate_pages_recursive(from_path, template_path, dest_path)
             
-                dest_file_path = os.path.join(dest_dir_path, entry.replace(extension, '.html'))
-
-                with open(dest_file_path, 'w', encoding='utf-8') as dest_file:
-                    dest_file.write(template_HTML)
-
-
-
 main()
