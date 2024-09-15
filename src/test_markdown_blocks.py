@@ -1,5 +1,5 @@
 import unittest
-from markdown_blocks import markdown_to_blocks
+from markdown_blocks import markdown_to_blocks, block_to_block_type
 
 
 class TestMarkdownToHTML(unittest.TestCase):
@@ -46,6 +46,53 @@ This is the same paragraph on a new line
             ],
         )
 
+    def test_block_to_block_type_heading(self):
+        blocks = [
+            "# This a basic text",
+            "## This a basic text             ",
+            "   ### This a basic text",
+            "#### This a basic text",
+            "      ##### This a basic text ",
+            "   ###### This a basic text  ",
+        ]
+
+        self.assertEqual(block_to_block_type(blocks[0]), "heading")
+        self.assertEqual(block_to_block_type(blocks[1]), "heading")
+        self.assertEqual(block_to_block_type(blocks[2]), "heading")
+        self.assertEqual(block_to_block_type(blocks[3]), "heading")
+        self.assertEqual(block_to_block_type(blocks[4]), "heading")
+        self.assertEqual(block_to_block_type(blocks[5]), "heading")
+
+    def test_block_to_block_type_code(self):
+        block = "     ```private static String = 'Goodbye World!'```    "
+
+        self.assertEqual(block_to_block_type(block), "code")
+
+    def test_block_to_block_type_quote(self):
+        block = "         >schools are not real - Tesla   "
+
+        self.assertEqual(block_to_block_type(block), "quote")
+
+    def test_block_to_block_type_ul_list(self):
+        block = """
+* You
+* Need
+* To
+* Watch
+* Those
+* Animes
+        """
+
+        self.assertEqual(block_to_block_type(block), "unordered_list")
+
+    def test_block_to_block_type_ul_list(self):
+        block = """
+1. Attack on Titan
+2. Vinland Saga
+3. Naruto
+4. Monster
+5. and more...
+        """
 
 if __name__ == "__main__":
     unittest.main()
