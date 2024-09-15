@@ -140,13 +140,3 @@ def text_to_textnodes(text):
     
     return nodes
 
-def markdown_to_blocks(markdown):
-    return markdown.strip().split("\n\n")
-markdown = """# This is a heading
-
-This is a paragraph of text. It has some **bold** and *italic* words inside of it.
-
-* This is the first list item in a list block
-* This is a list item
-* This is another list item"""
-print(markdown_to_blocks(markdown))
