@@ -6,9 +6,12 @@ def main():
     source_directory = "./static"
     destination_directory = "./public"
     copy_directory_recursive(source_directory, destination_directory)
-    extract_title(
-     "# asdgasdgasdg # adhpğplğ #quweıtu"   
-    )
+    
+    source_path = "./content/index.md"
+    destination_path = "./public/index.html"
+    template_path = "./template.html"
+    
+    generate_page(source_path, template_path, destination_path)
 
 def copy_directory_recursive(src, dest):
     if os.path.exists(dest):
@@ -34,7 +37,7 @@ def extract_title(markdown):
     return h1[0]
 
 def generate_page(from_path, template_path, dest_path):
-    print(f"Generating pagre from {from_path} to {dest_path} using {template_path}")
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     
     with open(from_path, 'r') as from_file:
         from_path_as_string = from_file.read()
@@ -47,6 +50,8 @@ def generate_page(from_path, template_path, dest_path):
     
     new_template_path_as_string = template_path_as_string.replace("{{ Title }}", page_title)
     new_template_path_as_string = new_template_path_as_string.replace("{{ Content }}", HTML)
+    
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     
     with open(dest_path, 'w') as dest_file:
         dest_file.write(new_template_path_as_string)
